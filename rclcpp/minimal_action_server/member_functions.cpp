@@ -46,7 +46,7 @@ public:
 
 private:
   rclcpp_action::GoalResponse handle_goal(
-    const std::array<uint8_t, 16> & uuid,
+    const rclcpp_action::GoalUUID & uuid,
     std::shared_ptr<const Fibonacci::Goal> goal)
   {
     RCLCPP_INFO(this->get_logger(), "Received goal request with order %d", goal->order);
