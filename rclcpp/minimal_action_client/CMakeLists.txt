@@ -15,6 +15,12 @@ find_package(example_interfaces REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 
+add_executable(action_client_member_function member_function.cpp)
+ament_target_dependencies(action_client_member_function
+  "rclcpp"
+  "rclcpp_action"
+  "example_interfaces")
+
 add_executable(action_client_not_composable not_composable.cpp)
 ament_target_dependencies(action_client_not_composable
   "rclcpp"
@@ -34,6 +40,7 @@ ament_target_dependencies(action_client_not_composable_with_feedback
   "example_interfaces")
 
 install(TARGETS
+  action_client_member_function
   action_client_not_composable
   action_client_not_composable_with_cancel
   action_client_not_composable_with_feedback
