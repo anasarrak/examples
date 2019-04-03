@@ -117,7 +117,6 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  // MinimalActionServer action_server("minimal_action_server");
   auto action_server = std::make_shared<MinimalActionServer>("minimal_action_server");
 
   action_server->spin();
