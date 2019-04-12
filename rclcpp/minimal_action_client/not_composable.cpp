@@ -15,17 +15,60 @@
 #include <inttypes.h>
 #include <memory>
 #include "example_interfaces/action/fibonacci.hpp"
+#include "std_msgs/msg/string.hpp"
 #include "rclcpp/rclcpp.hpp"
 // TODO(jacobperron): Remove this once it is included as part of 'rclcpp.hpp'
 #include "rclcpp_action/rclcpp_action.hpp"
 
 using Fibonacci = example_interfaces::action::Fibonacci;
 
+// class Game {
+// private:
+//   int goals;
+//   std::shared_ptr<rclcpp::Node> node_;
+// public:
+//   // constructor used to initialize
+//   Game() {
+//     goals = 0;
+//   }
+//   Game(const std::shared_ptr<rclcpp::Node> n)
+//   : node_(n)
+//   {}
+//   // return score
+//   std::shared_ptr<rclcpp::Node> getGoals() {
+//     return node_;
+//   }
+//   // increment goal by one
+//   void incrementGoal() {
+//     goals++;
+//   }
+// };
 
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
+  //Passing and getting the node through the constructor
   auto node = rclcpp::Node::make_shared("minimal_action_client");
+  // Game football(node);
+  //
+  // auto publisher = node->create_publisher<std_msgs::msg::String>("topic");
+  // auto message = std::make_shared<std_msgs::msg::String>();
+  // auto publish_count = 0;
+  // rclcpp::WallRate loop_rate(10);
+  //
+  // while (rclcpp::ok()) {
+  //   message->data = "Hello, world! " + std::to_string(publish_count++);
+  //   RCLCPP_INFO(football.getGoals()->get_logger(), "Publishing: '%s'", message->data.c_str());
+  //   publisher->publish(message);
+  //   rclcpp::spin_some(football.getGoals());
+  //   loop_rate.sleep();
+  // }
+  //
+  // std::cout << "Number of goals when game is started = " << football.getGoals() << std::endl;
+  //
+  // football.incrementGoal();
+  // football.incrementGoal();
+  // std::cout << "Number of goals a little later = " << football.getGoals() << std::endl;
   auto action_client = rclcpp_action::create_client<Fibonacci>(node, "fibonacci");
 
   if (!action_client->wait_for_action_server(std::chrono::seconds(20))) {
@@ -54,7 +97,8 @@ int main(int argc, char ** argv)
   }
 
   // Wait for the server to be done with the goal
-  auto result_future = goal_handle->async_result();
+  // auto result_future = goal_handle->async_result();
+  auto result_future = goal_handle_future.get()->async_result();
 
   RCLCPP_INFO(node->get_logger(), "Waiting for result");
   if (rclcpp::spin_until_future_complete(node, result_future) !=
@@ -64,10 +108,14 @@ int main(int argc, char ** argv)
     return 1;
   }
 
-  rclcpp_action::ClientGoalHandle<Fibonacci>::WrappedResult wrapped_result = result_future.get();
+  rclcpp_action::ClientGoalHandle<Fibonacci>::Result result = result_future.get();
 
-  switch(wrapped_result.code) {
+  if(result.code == rclcpp_action::ResultCode::SUCCEEDED){
+    RCLCPP_WARN(node->get_logger(), "Succeddddd %s" , result.response);
+  }
+  switch(result_future.get().code) {
     case rclcpp_action::ResultCode::SUCCEEDED:
+      RCLCPP_WARN(node->get_logger(), "Succed");
       break;
     case rclcpp_action::ResultCode::ABORTED:
       RCLCPP_ERROR(node->get_logger(), "Goal was aborted");
@@ -81,7 +129,7 @@ int main(int argc, char ** argv)
   }
 
   RCLCPP_INFO(node->get_logger(), "result received");
-  for (auto number : wrapped_result.result->sequence)
+  for (auto number : result.response->sequence)
   {
     RCLCPP_INFO(node->get_logger(), "%" PRId64, number);
   }

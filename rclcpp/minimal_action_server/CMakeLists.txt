@@ -15,7 +15,7 @@ find_package(example_interfaces REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 
-add_executable(action_server_not_composable not_composable.cpp)
+add_executable(action_server_not_composable not_composable.cpp action_server.cpp)
 ament_target_dependencies(action_server_not_composable
   "rclcpp"
   "rclcpp_action"

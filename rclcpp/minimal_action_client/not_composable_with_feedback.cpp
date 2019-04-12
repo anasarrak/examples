@@ -37,7 +37,7 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   g_node = rclcpp::Node::make_shared("minimal_action_client");
-  auto action_client = rclcpp_action::create_client<Fibonacci>(g_node, "fibonacci");
+  std::shared_ptr<rclcpp_action::Client<example_interfaces::action::Fibonacci> > action_client = rclcpp_action::create_client<Fibonacci>(g_node, "fibonacci");
 
   if (!action_client->wait_for_action_server(std::chrono::seconds(20))) {
     RCLCPP_ERROR(g_node->get_logger(), "Action server not available after waiting");
@@ -76,9 +76,9 @@ int main(int argc, char ** argv)
     return 1;
   }
 
-  rclcpp_action::ClientGoalHandle<Fibonacci>::WrappedResult wrapped_result = result_future.get();
+  rclcpp_action::ClientGoalHandle<Fibonacci>::Result result = result_future.get();
 
-  switch(wrapped_result.code) {
+  switch(result.code) {
     case rclcpp_action::ResultCode::SUCCEEDED:
       break;
     case rclcpp_action::ResultCode::ABORTED:
@@ -93,7 +93,7 @@ int main(int argc, char ** argv)
   }
 
   RCLCPP_INFO(g_node->get_logger(), "result received");
-  for (auto number : wrapped_result.result->sequence)
+  for (auto number : result.response->sequence)
   {
     RCLCPP_INFO(g_node->get_logger(), "%" PRId64, number);
   }
